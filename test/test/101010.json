@@ -1,1 +1,1 @@
-{"god": {"god_name": "Paul", "god_pic": "thing.jpg", "log": []}, "children": {}, "guardian": {"12345": {"guardian_name": "Daniel Okazaki", "guardian_pic": "sad_face.jpg"}, "11111": {"guardian_name": "test", "guardian_pic": "happy_face.jpg"}}}
+{"god": {"god_name": "John", "god_pic": "thing.jpg", "log": []}, "children": {}, "guardian": {"12345": {"guardian_name": "Daniel Okazaki", "guardian_pic": "sad_face.jpg", "permissions": {"56789": {"wish": "r", "chore": "r"}, "98765": {"wish": "r", "chore": "r"}}}}}

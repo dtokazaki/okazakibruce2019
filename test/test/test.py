@@ -204,7 +204,7 @@ def createGuardian(god_id,guardian_id,guardian_name,guardian_pic):
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
 
-    int(guardian_id)
+    str(guardian_id)
     try:
          s3.download_file(bucket_name,filename,filename)
     except botocore.exceptions.ClientError as e:
@@ -218,10 +218,10 @@ def createGuardian(god_id,guardian_id,guardian_name,guardian_pic):
 
     new = {}
     new['guardian'] = {}
-    new['guardian'][guardian_id] = {}
-    new['guardian'][guardian_id]['guardian_name'] = guardian_name
-    new['guardian'][guardian_id]['guardian_pic'] = guardian_pic
-    #new['guardian'][guardian_id]['permissions'] = {}
+    new['guardian'][str(guardian_id)] = {}
+    new['guardian'][str(guardian_id)]['guardian_name'] = guardian_name
+    new['guardian'][str(guardian_id)]['guardian_pic'] = guardian_pic
+    new['guardian'][str(guardian_id)]['permissions'] = {}
 
     merge(data,new)
     #data = dict(data)
@@ -236,7 +236,6 @@ def remGuardian(god_id,guardian_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
-    int(guardian_id)
 
     try:
          s3.download_file(bucket_name,filename,filename)
@@ -249,7 +248,7 @@ def remGuardian(god_id,guardian_id):
     with open(filename, 'r') as f:
         data = json.load(f)
     try:
-        del data['guardian'][guardian_id]
+        del data['guardian'][str(guardian_id)]
     except:
         return -1
     with open(filename,'w') as f:
@@ -262,8 +261,6 @@ def addPermission(god_id,guardian_id,child_id,chore_lvl,wish_lvl):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
-    int(guardian_id)
-    int(child_id)
 
     try:
          s3.download_file(bucket_name,filename,filename)
@@ -277,44 +274,26 @@ def addPermission(god_id,guardian_id,child_id,chore_lvl,wish_lvl):
         data = json.load(f)
     
     try:
-        #new = {}
-        #new['guardian'] = {}
-        #new['guardian'][guardian_id] = {}
-        #new['guardian'][guardian_id]['permissions'] = {}
-        #new['guardian'][guardian_id]['permissions'][child_id] = {}
-        #new['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
-        #new['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl      
-        #merge(data,new)
-
-        new = copy.deepcopy(data)
-        new['guardian'][guardian_id]['permissions'] = {}
-        new['guardian'][guardian_id]['permissions'][child_id] = {}
-        new['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
-        new['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl      
-
-        #data.update({'guardian':{guardian_id: {'permissions': {child_id: {'chore': chore_lvl,'wish':wish_lvl}}}}})
-
-        #data['guardian'][guardian_id]['permissions'][child_id] = {}
-
-        #data['guardian'][guardian_id].append({'permissions'})
-
-        #d = collections.defaultdict(list)
-        #for k, v in data:
-        #    d[k].append(v)
-        #for k, v in new:
-        #    d[k].append(v)
+        new = {}
+        new['guardian'] = {}
+        new['guardian'][str(guardian_id)] = {}
+        new['guardian'][str(guardian_id)]['permissions'] = {}
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)] = {}
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['chore'] = chore_lvl
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['wish'] = wish_lvl      
+        merge(data,new)
     except:
         return -1
     with open(filename,'w') as f:
-        #f.writelines(json.dumps(data))
-        f.writelines(json.dumps(new))
+        f.writelines(json.dumps(data))
+        #f.writelines(json.dumps(new))
     s3.upload_file(filename, bucket_name, filename)
     return 0
 # Get Guardian Name
 def getGuardian_name(god_id,guardian_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
-    filename = str(god) + ".json"
+    filename = str(god_id) + ".json"
 
     try:
         s3.download_file(bucket_name,filename,filename)
@@ -326,7 +305,7 @@ def getGuardian_name(god_id,guardian_id):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    return data['guardian']['guardian_name']
+    return data['guardian'][str(guardian_id)]['guardian_name']
 
 # Get Guardian Image
 def getGuardian_pic(god_id,guardian_id):
@@ -344,17 +323,19 @@ def getGuardian_pic(god_id,guardian_id):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    return data['guardian']['guardian_pic']
+    return data['guardian'][str(guardian_id)]['guardian_pic']
 createGod(101010,"Paul","thing.jpg")
-#godName(101010,"John")
+godName(101010,"John")
 print(getGod_name(101010) )
 print(getGod_pic(101010) )
 #print(getGod_log(101010) )
 #remGod(101010)
 createGuardian(101010,12345,"Daniel Okazaki","sad_face.jpg")
 createGuardian(101010,11111,"test","happy_face.jpg")
-#remGuardian(101010,12345)
 addPermission(101010,12345,98765,"r","r")
 addPermission(101010,12345,56789,"r","r")
+print(getGuardian_name(101010,12345))
+print(getGuardian_pic(101010,12345))
+remGuardian(101010,11111)
 
      
