@@ -1,4 +1,4 @@
-import boto3,json,io,datetime,botocore,collections
+import boto3,json,io,datetime,botocore,collections,copy
 
 def merge(a, b, path=None):
     "merges b into a"
@@ -14,7 +14,7 @@ def merge(a, b, path=None):
         else:
             a[key] = b[key]
     return a
-
+    
 # Create God account
 def createGod(god_id,god_name,god_pic):
     # Create an S3 client
@@ -275,42 +275,39 @@ def addPermission(god_id,guardian_id,child_id,chore_lvl,wish_lvl):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-
+    
     try:
-        new = {}
-        #temp = {child_id: {'chore': chore_lvl, 'wish': wish_lvl}}
-        #temp = {}
-        new['guardian'] = {}
-        new['guardian'][guardian_id] = {}
-        new['guardian'][guardian_id]['permissions'] = {}
-        #data.update(new)
-        merge(data,new)
-        #temp[child_id]['chore'] = chore_lvl
-        #temp[child_id]['wish'] = wish_lvl
-        #temp['guardian'][guardian_id]['guardian_name'] = getGuardian_name(god_id,guardian_id)
-        #temp['guardian'][guardian_id]['guardian_pic'] = getGuardian_pic(god_id,guardian_id)
-        #temp['guardian'][guardian_id]['permissions'] = {}
-        #data.update(temp)
-        new['guardian'][guardian_id]['permissions'][child_id] = {}
-        merge(data,new)
-        new['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
-        new['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl
-           
-        merge(data,new)
+        #new = {}
+        #new['guardian'] = {}
+        #new['guardian'][guardian_id] = {}
+        #new['guardian'][guardian_id]['permissions'] = {}
+        #new['guardian'][guardian_id]['permissions'][child_id] = {}
+        #new['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
+        #new['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl      
+        #merge(data,new)
 
-        #temp = defaultdict()
+        new = copy.deepcopy(data)
+        new['guardian'][guardian_id]['permissions'] = {}
+        new['guardian'][guardian_id]['permissions'][child_id] = {}
+        new['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
+        new['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl      
+
+        #data.update({'guardian':{guardian_id: {'permissions': {child_id: {'chore': chore_lvl,'wish':wish_lvl}}}}})
+
+        #data['guardian'][guardian_id]['permissions'][child_id] = {}
+
+        #data['guardian'][guardian_id].append({'permissions'})
+
+        #d = collections.defaultdict(list)
         #for k, v in data:
-        #    temp[k].append(v)
-        #data = data.union(new) 
-        #data['guardian'][guardian_id][2][child_id] = [None]*2
-        #data.update(temp)
-        #temp['guardian'][guardian_id]['permissions'][child_id]['chore'] = chore_lvl
-        #temp['guardian'][guardian_id]['permissions'][child_id]['wish'] = wish_lvl
-        #data.update(temp)
+        #    d[k].append(v)
+        #for k, v in new:
+        #    d[k].append(v)
     except:
         return -1
     with open(filename,'w') as f:
-        f.writelines(json.dumps(temp))
+        #f.writelines(json.dumps(data))
+        f.writelines(json.dumps(new))
     s3.upload_file(filename, bucket_name, filename)
     return 0
 # Get Guardian Name
