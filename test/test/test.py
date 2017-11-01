@@ -1,20 +1,5 @@
 import boto3,json,io,botocore,collections
 from datetime import datetime
-
-def merge(a, b, path=None):
-    "merges b into a"
-    if path is None: path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass # same leaf value
-            else:
-                raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
     
 # Create God account
 def createGod(god_id,god_name,god_pic):
@@ -251,14 +236,10 @@ def createGuardian(god_id,guardian_id,guardian_name,guardian_pic):
     with open(filename, 'r') as f:
         data = json.load(f)
 
-    new = {}
-    new['guardian'] = {}
-    new['guardian'][str(guardian_id)] = {}
-    new['guardian'][str(guardian_id)]['guardian_name'] = guardian_name
-    new['guardian'][str(guardian_id)]['guardian_pic'] = guardian_pic
-    new['guardian'][str(guardian_id)]['permissions'] = {}
-
-    merge(data,new)
+    data['guardian'][str(guardian_id)] = {}
+    data['guardian'][str(guardian_id)]['guardian_name'] = guardian_name
+    data['guardian'][str(guardian_id)]['guardian_pic'] = guardian_pic
+    data['guardian'][str(guardian_id)]['permissions'] = {}
 
     with open(filename,'w') as f:
         f.writelines(json.dumps(data))
@@ -353,24 +334,19 @@ def addPermission(god_id,guardian_id,child_id):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    
     try:
-        new = {}
-        new['guardian'] = {}
-        new['guardian'][str(guardian_id)] = {}
-        new['guardian'][str(guardian_id)]['permissions'] = {}
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)] = {}
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['name'] = 0 
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['pic'] = 0
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['chore'] = 0
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['wish'] = 0     
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['achieve'] = 0
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['points'] = 0 # "1" = can add and remove points from child 
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['childPerm'] = 0 # "1" = can change child permissions
-        
-        merge(data,new)
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)] = {}
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['name'] = 0 
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['pic'] = 0
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['chore'] = 0
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['wish'] = 0     
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['achieve'] = 0
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['points'] = 0 # "1" = can add and remove points from child 
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['childPerm'] = 0 # "1" = can change child permissions
+  
     except:
         return -1
+
     with open(filename,'w') as f:
         f.writelines(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
@@ -615,7 +591,7 @@ def delPermission(god_id,guardian_id):
     return 0
 
 # Get Guardian Permission lvl for a specific child
-def getPermission(god_id,guardian_id,child_id):
+def get_guardianPerm(god_id,guardian_id,child_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -684,22 +660,19 @@ def createChild(god_id,child_id,child_name,child_pic):
 
     with open(filename, 'r') as f:
         data = json.load(f)
+  
+    data['children'][str(child_id)] = {}
+    data['children'][str(child_id)]['child_name'] = child_name
+    data['children'][str(child_id)]['child_pic'] = child_pic
+    data['children'][str(child_id)]['points'] = 0
+    data['children'][str(child_id)]['chore'] = {}
+    data['children'][str(child_id)]['wish'] = {}
+    data['children'][str(child_id)]['achievements'] = {}
+    data['children'][str(child_id)]['permissions'] = {}
+    data['children'][str(child_id)]['permissions']['name'] = 1
+    data['children'][str(child_id)]['permissions']['pic'] = 1
+    data['children'][str(child_id)]['log'] = []
 
-    new = {}
-    new['children'] = {}
-    new['children'][str(child_id)] = {}
-    new['children'][str(child_id)]['child_name'] = child_name
-    new['children'][str(child_id)]['child_pic'] = child_pic
-    new['children'][str(child_id)]['points'] = 0
-    new['children'][str(child_id)]['chore'] = {}
-    new['children'][str(child_id)]['wish'] = {}
-    new['children'][str(child_id)]['achievements'] = {}
-    new['children'][str(child_id)]['permissions'] = {}
-    new['children'][str(child_id)]['permissions']['name'] = 1
-    new['children'][str(child_id)]['permissions']['pic'] = 1
-    new['children'][str(child_id)]['log'] = []
-
-    merge(data,new)
     
     with open(filename,'w') as f:
         f.writelines(json.dumps(data))
@@ -947,6 +920,24 @@ def child_picPerm(god_id,child_id,permission,pic_lvl):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
+# Get Child Permission lvl
+def get_childPerm(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    return data['children'][str(child_id)]['permissions']
+
 # Add Points to Child
 def addPoints(god_id,child_id,permission,message,amount):
     s3 = boto3.client('s3')
@@ -1033,7 +1024,7 @@ guardian_wishPerm(101010,12345,98765,4)
 guardian_achievePerm(101010,12345,98765,5)
 guardian_pointsPerm(101010,12345,98765,6)
 guardian_childPerm(101010,12345,98765,7)
-print(getPermission(101010,12345,56789))
+print(get_guardianPerm(101010,12345,56789))
 #delPermission(101010,12345)
 delGuardian(101010,11111)
 #remPermission(101010,12345,56789)
@@ -1051,6 +1042,7 @@ child_picPerm(101010,98765,1,0)
 child_namePerm(101010,98765,1,0)
 addPoints(101010,98765,1,None,10)
 #remPoints(101010,98765,1,None,20)
+print(get_childPerm(101010,56789))
 
 
 
