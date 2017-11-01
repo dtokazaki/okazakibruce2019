@@ -37,6 +37,8 @@ def createGod(god_id,god_name,god_pic):
     return 0
 
 # Remove God Account
+# If multiple GODS, first delete account
+# if only GOD run this function
 def delGod(god_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
@@ -106,7 +108,7 @@ def remLog(god_id,message):
     return 0
 
 # Delete the whole Log
-def delLog(god_id):
+def delLog(god_id,permission):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -336,7 +338,7 @@ def guardianPic(god_id,guardian_id,guardian_pic):
     return 0
 
 # Initial add Permission
-def addPermission(god_id,guardian_id,child_id,name_lvl,pic_lvl,chore_lvl,wish_lvl,achieve_lvl):
+def addPermission(god_id,guardian_id,child_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -358,11 +360,14 @@ def addPermission(god_id,guardian_id,child_id,name_lvl,pic_lvl,chore_lvl,wish_lv
         new['guardian'][str(guardian_id)] = {}
         new['guardian'][str(guardian_id)]['permissions'] = {}
         new['guardian'][str(guardian_id)]['permissions'][str(child_id)] = {}
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['name'] = name_lvl
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['pic'] = pic_lvl
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['chore'] = chore_lvl
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['wish'] = wish_lvl     
-        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['achieve'] = achieve_lvl  
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['name'] = 0 
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['pic'] = 0
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['chore'] = 0
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['wish'] = 0     
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['achieve'] = 0
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['points'] = 0 # "1" = can add and remove points from child 
+        new['guardian'][str(guardian_id)]['permissions'][str(child_id)]['childPerm'] = 0 # "1" = can change child permissions
+        
         merge(data,new)
     except:
         return -1
@@ -502,7 +507,60 @@ def guardian_achievePerm(god_id,guardian_id,child_id,achieve_lvl):
         f.writelines(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
     return 0
-# Remove Permission
+
+# Change Guardian Points Permissions
+def guardian_pointsPerm(god_id,guardian_id,child_id,points_lvl):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['points'] = points_lvl
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Guardian -> childPerm Permissions
+def guardian_childPerm(god_id,guardian_id,child_id,childPerm_lvl):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        data['guardian'][str(guardian_id)]['permissions'][str(child_id)]['childPerm'] = childPerm_lvl
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Remove Permissions for a given child
 def remPermission(god_id,guardian_id,child_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
@@ -527,6 +585,7 @@ def remPermission(god_id,guardian_id,child_id):
         f.writelines(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
     return 0
+
 # Delete all permissions
 def delPermission(god_id,guardian_id):
     s3 = boto3.client('s3')
@@ -555,7 +614,7 @@ def delPermission(god_id,guardian_id):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
-# Get Guardian Permission lvl
+# Get Guardian Permission lvl for a specific child
 def getPermission(god_id,guardian_id,child_id):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
@@ -636,8 +695,9 @@ def createChild(god_id,child_id,child_name,child_pic):
     new['children'][str(child_id)]['wish'] = {}
     new['children'][str(child_id)]['achievements'] = {}
     new['children'][str(child_id)]['permissions'] = {}
-    new['children'][str(child_id)]['permissions']['name'] = "w"
-    new['children'][str(child_id)]['permissions']['pic'] = "w"
+    new['children'][str(child_id)]['permissions']['name'] = 1
+    new['children'][str(child_id)]['permissions']['pic'] = 1
+    new['children'][str(child_id)]['log'] = []
 
     merge(data,new)
     
@@ -645,8 +705,9 @@ def createChild(god_id,child_id,child_name,child_pic):
         f.writelines(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
     return 0
+
 # Delete Child
-def delChild(god_id,guardian_id):
+def delChild(god_id,child_id,permission):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -662,7 +723,8 @@ def delChild(god_id,guardian_id):
     with open(filename, 'r') as f:
         data = json.load(f)
     try:
-        del data['children'][str(guardian_id)]
+        if permission == 2:
+            del data['children'][str(child_id)]
     except:
         return -1
     with open(filename,'w') as f:
@@ -670,8 +732,8 @@ def delChild(god_id,guardian_id):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
-# Change Child name GOD ACCOUNT ONLY
-def childName(god_id,child_id,child_name):
+# Change Child name
+def childName(god_id,child_id,child_name,permission):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -686,15 +748,19 @@ def childName(god_id,child_id,child_name):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    data['children'][str(child_id)]['child_name'] = child_name
-    
+    if permission >= 1:
+        data['children'][str(child_id)]['child_name'] = child_name
+    else: 
+        return -1
+
     with open(filename, 'w') as f:
         f.write(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
-# Change Child Image GOD ACCOUNT ONLY
-def childPic(god_id,child_id,child_pic):
+
+# Change Child Image
+def childPic(god_id,child_id,child_pic,permission):
     s3 = boto3.client('s3')
     bucket_name = 'okazakibruce2019'
     filename = str(god_id) + ".json"
@@ -709,11 +775,235 @@ def childPic(god_id,child_id,child_pic):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    data['children'][str(child_id)]['child_pic'] = child_pic
-    
+    if permission >= 1:
+        data['children'][str(child_id)]['child_pic'] = child_pic
+    else:
+        return -1
+   
     with open(filename, 'w') as f:
         f.write(json.dumps(data))
 
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Add Log Entry
+def add_childLog(god_id,child_id,message):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    new = {}
+    new['time'] = str(datetime.now())
+    new['message'] = str(message)
+    data['children'][str(child_id)]['log'].append(new)
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Get Child Log
+def getChildLog(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+
+    return data['children'][str(child_id)]['log']
+# Remove a log entry
+# For testing purposes, I remove by message, but removing by time is just the same
+def rem_childLog(god_id,child_id,message):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    i = 0
+    flag = 0
+    for x in data['children'][str(child_id)]['log']:
+        if x['message'] == str(message):
+            flag = 1
+            break
+        ++i
+    if flag == 1:
+        del data['children'][str(child_id)]['log'][i]
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Delete the whole Log
+def del_childLog(god_id,child_id,permission):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        if permission == 2:
+            del data['children'][str(child_id)]['log']
+            data['children'][str(child_id)]['log'] = []
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Child Name Permissions
+def child_namePerm(god_id,child_id,permission,name_lvl):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        if permission >= 1:
+            data['children'][str(child_id)]['permissions']['name'] = name_lvl
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+
+# Change Child Pic Permissions
+def child_picPerm(god_id,child_id,permission,pic_lvl):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        if permission >= 1:
+            data['children'][str(child_id)]['permissions']['pic'] = pic_lvl
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Add Points to Child
+def addPoints(god_id,child_id,permission,message,amount):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        if permission >= 1:
+            if message != None:
+                add_childLog(god_id,child_id,message)
+            data['children'][str(child_id)]['points'] += amount
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Remove Points from Child
+def remPoints(god_id,child_id,permission,message,amount):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    try:
+        if permission >= 1:
+            if message != None:
+                add_childLog(god_id,child_id,message)
+            data['children'][str(child_id)]['points'] -= amount
+            if data['children'][str(child_id)]['points'] < 0:
+                data['children'][str(child_id)]['points'] = 0
+    except:
+        return -1
+    with open(filename,'w') as f:
+        f.writelines(json.dumps(data))
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
@@ -725,7 +1015,7 @@ addLog(101010,"This account was created")
 addLog(101010,"First Achievement Completed")
 print(getLog(101010))
 remLog(101010,"This account was created")
-delLog(101010)
+delLog(101010,3)
 #delGod(101010)
 
 createGuardian(101010,12345,"Daniel Okazaki","sad_face.jpg")
@@ -734,22 +1024,36 @@ guardianName(101010,12345,"Gabe")
 guardianPic(101010,12345,"progress.jpg")
 print(get_guardianName(101010,12345) )
 print(get_guardianPic(101010,12345) )
-addPermission(101010,12345,98765,"r","r","r","r","r")
-addPermission(101010,12345,56789,"r","r","r","r","r")
-guardian_namePerm(101010,12345,98765,"w")
-guardian_picPerm(101010,12345,98765,"w")
-guardian_chorePerm(101010,12345,98765,"w")
-guardian_wishPerm(101010,12345,98765,"w")
-guardian_achievePerm(101010,12345,98765,"w")
+addPermission(101010,12345,98765)
+addPermission(101010,12345,56789)
+guardian_namePerm(101010,12345,98765,1)
+guardian_picPerm(101010,12345,98765,2)
+guardian_chorePerm(101010,12345,98765,3)
+guardian_wishPerm(101010,12345,98765,4)
+guardian_achievePerm(101010,12345,98765,5)
+guardian_pointsPerm(101010,12345,98765,6)
+guardian_childPerm(101010,12345,98765,7)
 print(getPermission(101010,12345,56789))
 #delPermission(101010,12345)
 delGuardian(101010,11111)
 #remPermission(101010,12345,56789)
 createChild(101010,98765,"Mason Bruce","winning.jpg")
 createChild(101010,56789,"Mickey H","programming.jpg")
-delChild(101010,56789)
-childPic(101010,98765,"Harry")
-childName(101010,98765,"losing.jpg")
+delChild(101010,56789,3)
+#god_childPic(101010,98765,"Harry")
+#god_childName(101010,98765,"losing.jpg")
+childName(101010,98765,"Chris",1)
+childPic(101010,98765,"test.jpg",2)
+add_childLog(101010,98765,"First Achievement Completed")
+#rem_childLog(101010,98765,"First Achievement Completed")
+del_childLog(101010,98765,3)
+child_picPerm(101010,98765,1,0)
+child_namePerm(101010,98765,1,0)
+addPoints(101010,98765,1,None,10)
+#remPoints(101010,98765,1,None,20)
+
+
+
 
 
 
