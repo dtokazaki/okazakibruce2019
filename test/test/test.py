@@ -814,6 +814,42 @@ def childPic(god_id,child_id,child_pic,permission):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
+# Get Child Name
+def get_childName(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    return data['children'][str(child_id)]['child_name']
+
+# Get Child Image
+def get_childPic(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    return data['children'][str(child_id)]['child_pic']
+
 # Add Log Entry
 def add_childLog(god_id,child_id,message):
     s3 = boto3.client('s3')
@@ -1096,7 +1132,8 @@ def addChore(god_id,child_id,name,points,interval,day_reset,time_reset,image):
         new['confirm'] = 0
         new['points'] = points
         new['interval'] = interval
-        new['day_reset'] = time_reset
+        new['day_reset'] = day_reset
+        new['time_reset'] = time_reset
         new['image'] = image
 
         data['children'][str(child_id)]['chore'].append(new)
@@ -1108,7 +1145,7 @@ def addChore(god_id,child_id,name,points,interval,day_reset,time_reset,image):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
-# Remove a Child log entry
+# Remove a Child Chore
 # For testing purposes, I remove by message, but removing by time is just the same
 def remChore(god_id,child_id,name):
     s3 = boto3.client('s3')
@@ -1242,7 +1279,7 @@ def choreName(god_id,child_id,name,newName):
                 break
             ++i
         if flag == 1:
-            data['children'][str(child_id)]['chore'][i]['name'] = name
+            data['children'][str(child_id)]['chore'][i]['name'] = newName
     except:
         return -1
 
@@ -1455,6 +1492,734 @@ def choreImage(god_id,child_id,name,image):
     s3.upload_file(filename, bucket_name, filename)
     return 0
 
+# Add Wish Entry
+def addWish(god_id,child_id,name,image):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        new = {}
+        new['name'] = name
+        new['confirm'] = 0
+        new['cost'] = 0
+        new['image'] = image
+
+        data['children'][str(child_id)]['wish'].append(new)
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Remove a Child Wish entry
+# For testing purposes, I remove by message, but removing by time is just the same
+def remWish(god_id,child_id,name):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    i = 0
+    flag = 0
+    for x in data['children'][str(child_id)]['wish']:
+        if x['name'] == str(name):
+            flag = 1
+            break
+        ++i
+    if flag == 1:
+        del data['children'][str(child_id)]['wish'][i]
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Delete the whole Wish List
+def del_wishList(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        del data['children'][str(child_id)]['wish']
+        data['children'][str(child_id)]['wish'] = []
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Get Wish List
+def get_wishList(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+
+    return data['children'][str(child_id)]['wish']
+
+# Get a Child Wish
+# For testing purposes, I remove by message, but removing by time is just the same
+def getWish(god_id,child_id,name):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    i = 0
+    flag = 0
+    for x in data['children'][str(child_id)]['wish']:
+        if x['name'] == str(name):
+            flag = 1
+            break
+        ++i
+    if flag == 1:
+        return data['children'][str(child_id)]['wish'][i]
+    else:
+        return -1
+
+# Change Wish Name
+def wishName(god_id,child_id,name,newName):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['wish']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['wish'][i]['name'] = newName
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Wish Cost
+def wishCost(god_id,child_id,name,cost):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['wish']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['wish'][i]['cost'] = cost
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Wish Confirm
+def wishConfirm(god_id,child_id,name,confirm):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['wish']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['wish'][i]['confirm'] = confirm
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Wish Image
+def wishImage(god_id,child_id,name,image):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['wish']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['wish'][i]['image'] = image
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Add Achievement Entry
+def addAchieve(god_id,child_id,name,reward,recurring,day_reset,time_reset,progress,image):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        new = {}
+        new['name'] = name
+        new['complete'] = 0
+        new['recurring'] = 0
+        new['reward'] = reward
+        new['day_reset'] = day_reset
+        new['time_reset'] = time_reset
+        new['progress'] = 0
+        new['image'] = image
+
+        data['children'][str(child_id)]['achievements'].append(new)
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Remove a Child Achievement
+# For testing purposes, I remove by message, but removing by time is just the same
+def remAchieve(god_id,child_id,name):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    i = 0
+    flag = 0
+    for x in data['children'][str(child_id)]['achievements']:
+        if x['name'] == str(name):
+            flag = 1
+            break
+        ++i
+    if flag == 1:
+        del data['children'][str(child_id)]['achievements'][i]
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Delete the whole Achievement List
+def del_achieveList(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        del data['children'][str(child_id)]['achievements']
+        data['children'][str(child_id)]['achievements'] = []
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Get Achievement List
+def get_achieveList(god_id,child_id):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+
+    return data['children'][str(child_id)]['achievements']
+
+# Get a Child Achievement
+# For testing purposes, I remove by message, but removing by time is just the same
+def getAchieve(god_id,child_id,name):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+         s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    i = 0
+    flag = 0
+    for x in data['children'][str(child_id)]['achievements']:
+        if x['name'] == str(name):
+            flag = 1
+            break
+        ++i
+    if flag == 1:
+        return data['children'][str(child_id)]['achievements'][i]
+    else:
+        return -1
+
+# Change Achievements Name
+def achieveName(god_id,child_id,name,newName):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['name'] = newName
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Reward
+def achieveReward(god_id,child_id,name,reward):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['reward'] = reward
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement recurring bool
+def achieveBool(god_id,child_id,name,bool):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['recurring'] = bool
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Day Reset
+def achieveDay(god_id,child_id,name,day):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['day'] = day
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Interval Reset
+def achieveInterval(god_id,child_id,name,interval):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['interval'] = interval
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Time Reset
+def achieveTime(god_id,child_id,name,time):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['time'] = time
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Achievement Complete
+def achieveComplete(god_id,child_id,name,complete):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['complete'] = complete
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Progress
+def achieveProgress(god_id,child_id,name,progress):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['progress'] = progress
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
+# Change Achievement Image
+def achieveImage(god_id,child_id,name,image):
+    s3 = boto3.client('s3')
+    bucket_name = 'okazakibruce2019'
+    filename = str(god_id) + ".json"
+
+    try:
+        s3.download_file(bucket_name,filename,filename)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    try:
+        i = 0
+        flag = 0
+        for x in data['children'][str(child_id)]['achievements']:
+            if x['name'] == str(name):
+                flag = 1
+                break
+            ++i
+        if flag == 1:
+            data['children'][str(child_id)]['achievements'][i]['image'] = image
+    except:
+        return -1
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
+    s3.upload_file(filename, bucket_name, filename)
+    return 0
+
 
 
 createGod(101010,"Paul","thing.jpg")
@@ -1512,7 +2277,30 @@ choreDay(101010,56789,"Wash the Dishes",123)
 choreTime(101010,56789,"Wash the Dishes",1555)
 choreConfirm(101010,56789,"Wash the Dishes",1)
 choreImage(101010,56789,"Wash the Dishes","Dishes2.jpg")
-print(getChore(101010,56789,"Wash the Dishes"))
+choreName(101010,56789,"Wash the Dishes","Wash")
+print(getChore(101010,56789,"Wash"))
+addWish(101010,56789,"Bike","bike.jpg")
+#remWish(101010,56789,"Bike")
+#del_wishList(101010,56789)
+print(get_wishList(101010,56789))
+wishCost(101010,56789,"Bike",110)
+wishConfirm(101010,56789,"Bike",1)
+wishImage(101010,56789,"Bike","Bike2.jpg")
+wishName(101010,56789,"Bike","Scooter")
+print(getWish(101010,56789,"Scooter"))
+addAchieve(101010,56789,"First Achievement",10,0,1,1,1,"one.jpg")
+#remAchieve(101010,56789,"First Achievement")
+#del_AchieveList(101010,56789)
+print(get_achieveList(101010,56789))
+achieveReward(101010,56789,"First Achievement",110)
+achieveDay(101010,56789,"First Achievement",123)
+achieveTime(101010,56789,"First Achievement",1555)
+achieveComplete(101010,56789,"First Achievement",1)
+choreImage(101010,56789,"First Achievement","happy.jpg")
+achieveProgress(101010,56789,"First Achievement",100)
+achieveName(101010,56789,"First Achievement","New")
+print(getAchieve(101010,56789,"New"))
+
 
 
 
