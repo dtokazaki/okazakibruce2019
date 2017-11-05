@@ -28,6 +28,12 @@
     <Compile Include="module1.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="module2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="module3.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Piggybankapp\Piggybankapp\module1.py" />
     <Compile Include="test\test\test.py" />
   </ItemGroup>

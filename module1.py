@@ -549,7 +549,7 @@ def createChild(god_id,child_id,child_name,child_pic):
     return 0
 
 # Delete Child
-def delChild(god_id,child_id,permission):
+def delChild(god_id,child_id):
     dynamodb = resource('dynamodb')
     table = dynamodb.Table('okazakibruce2019')
     
@@ -560,8 +560,7 @@ def delChild(god_id,child_id,permission):
     )
     data = response['Item']
     try:
-        if permission == 2:
-            del data['children'][str(child_id)]
+       del data['children'][str(child_id)]
     except:
         return -1
     table.put_item(Item= data)
@@ -666,7 +665,7 @@ def add_childLog(god_id,child_id,message):
     return 0
 
 # Get Child Log
-def getChildLog(god_id,child_id):
+def get_childLog(god_id,child_id):
     dynamodb = resource('dynamodb')
     table = dynamodb.Table('okazakibruce2019')
     
@@ -792,9 +791,8 @@ def addPoints(god_id,child_id,permission,message,amount):
     data = response['Item']
     
     try:
-        if permission >= 1:
-            prev = data['children'][str(child_id)]['points']
-            data['children'][str(child_id)]['points'] = (amount + int(prev))
+        if int(permission) >= 1:
+            data['children'][str(child_id)]['points'] += int(amount)
             if message != None:
                 add_childLog(god_id,child_id,message)
 
@@ -910,9 +908,6 @@ def del_choreList(god_id,child_id):
         data['children'][str(child_id)]['chore'] = []
     except:
         return -1
-
-    with open(filename, 'w') as f:
-        f.write(json.dumps(data))
 
     table.put_item(Item= data)
     return 0
