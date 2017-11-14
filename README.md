@@ -79,8 +79,45 @@ Get God Pic
 			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god/godpic?god_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
 			"default.jpg"
 
-Create Guardian (NOTE: Requires that the guardian NAME and PIC already be set. Kind of annoying for testing purposes, but in reality this information will be readily available on account creation)
+Put log (NOTE: Messages with the same name are still appended to the list, but with different times. This list does not exist anymore since DELETE was called on it)
 	type: PUT
+	function name: log
+	parameters: god_id,message
+	description: Appends the message with the current time to the god account
+	errors: returns -1 if the god_id does not match to an account. Errors out if the message is an empty string
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/log?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&message=Chore:Wash_The_Dishes__Confirmed"
+			0
+Delete log (NOTE: can be changed to removing based on time or index in the list later if needed)
+	type: DELETE
+	function name: log
+	parameters: god_id,message
+	description: Find the message on the god log by name, and removes it from the list. Removes the first occurrence of the name, duplicate messages will NOT be deleted with one function call
+	errors: returns -1 if the god_id does not match to an account, or if the given message can not be found
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/log?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&message=Chore:Wash_The_Dishes__Confirmed"
+			0
+Get log list (NOTE: This list does not exist anymore since DELETE was called on it)
+	type: GET
+	function name: log/logall
+	parameters: god_id
+	description: Returns the entire log attributed to the god account
+	errors: returns -1 if the god_id does not match to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/log/logall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk"
+			[{"message": "Chore:Wash_The_Dishes__Confirmed", "time": "2017-11-14 04:42:14.238550"}, {"message": "Chore:Wash_The_Dishes__Confirmed", "time": "2017-11-14 04:42:23.597436"}]
+
+Delete log list
+	type: DELETE
+	function name: log/logall
+	parameters: god_id
+	description: Deletes the entire log attributed to the god account. Returns 0 on successful operation
+	errors: returns -1 if the god_id does not match to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/log/logall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk"
+			0
+			
+Create Guardian (NOTE: Requires that the guardian NAME and PIC already be set. Kind of annoying for testing purposes, but in reality this information will be readily available on account creation.)
 	function name: guardian
 	parameters: god_id, guardian_id
 	description: Uses a god_id and guardian_id to create a guardian. The guardian is saved to the god account, and the god_account and permission 'guardian' is saved to the guardian account
@@ -89,7 +126,7 @@ Create Guardian (NOTE: Requires that the guardian NAME and PIC already be set. K
 			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
 			0
 
-Get Guardian
+Get Guardian 
 	type: GET
 	function name: guardian
 	parameters: god_id,guardian_id
@@ -103,7 +140,90 @@ Delete Guardian
 	type: DELETE
 	function name: guardian
 	parameters: god_id,guardian_id
-	description: Uses a god_id and a guardian_id to find the guardian account. Deletes the guardian
+	description: Uses a god_id and a guardian_id to find the guardian account. Deletes the guardian. Returns 0 on successful operation.
 	errors: returns -1 if the god_id does not match to an account or if the guardian_id does not match up to an account
 	example:
-			
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
+			0
+
+NOTE: THESE NEXT 4 FUNCTIONS ARE OPTIONAL, AND CAN BE REMOVED IF YOU WANT THE GUARDIAN PIC AND NAME SAVED ON THEIR GOD ACCOUNT ONLY, AND NOT DIFFERENT COPIES ON DIFFERENT GOD ACCOUNTS. LET ME KNOW WHICH YOU CHOOSE SINCE I NEED TO DELETE THE PARAMETERS ON THE GUARDIAN SAVED ON THE GOD ACCOUNT IF YOU DONT WANT TO USE THESE FUNCTIONS
+
+Put Guardian Name (NOTE: This only changes the guardian name on the GOD account, not the guardian name on the guardian account. You can just not use this function, or use it to save nicknames on the GOD account. If you want to change the Guardian name on their own account and the name on the GOD account, you must call both functions)
+	type: PUT
+	function name: guardian/guardianname
+	parameters: god_id,guardian_id,guardian_name
+	description: Sets/Changes the guardian name on the god account. Does not affect the guardian name on their own god account. Returns 0 on successful operation
+	errors: returns -1 if the god_id or the guardian_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian/guardianname?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4&guardian_name=Mickey_Huang"
+			0
+
+Get Guardian Name (NOTE: This gets the guardian name on the god account)
+	type: GET
+	function name: guardian/guardianname
+	parameters: god_id,guardian_id
+	description: Returns the guardian name attributed to the god account
+	errors: returns -1 if the god_id or guardian_id do not match up to an account 
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian/guardianname?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
+			"Mickey_Huang"
+
+Put Guardian Pic (NOTE: This only changes the guardian pic on the GOD account, not the guardian name on the guardian account. You can just not use this function, or use it to save a different pic on the GOD account. If you want to change the Guardian pic on their own account and the name on the GOD account, you must call both functions)
+	type: GET
+	function name: guardian/guardianpic
+	parameters: god_id,guardian_id,guardian_pic
+	description: Sets/Changes the guardian pic on the god account. Does not acffect the guardian pic on their own god account. Returns 0 on successful operation
+	errors: returs -1 if the god_id or guardian_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian/guardianpic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4&guardian_pic=default.jpg"
+			0
+
+Get Guardian Pic (NOTE: This gets the guardian name on the god account)
+	type: GET
+	function name: guardian/guardianpic
+	parameters: god_id,guardian_id
+	description: Returns the guardian pic attributed to the guardian account
+	errors: returns -1 if the god_id or guardian_id do not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian/guardianpic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
+			"default.jpg"
+
+Create Child
+	type: PUT
+	function name: child
+	parameters: god_id
+	description: Creates a child account under the god account, and then returns the child ID
+	errors: returns -1 if the god_id does not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk"
+			0
+
+Get Child
+	type: GET
+	function name: child
+	parameters: god_id,child_id
+	description: Returns the child account given by the child ID
+	errors: returns -1 if the god_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			{"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}
+
+Delete Child
+	type: DELETE
+	function name: child
+	parameters: god_id,child_id
+	description: Deletes the child account. Returns 0 on successful operation
+	errors: returns -1 if the child_id or god_id do not match up to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			0
+
+Get Child List
+	type: GET
+	function name: child/childall
+	paramaters: god_id
+	description: Returns all child accounts attributed to the god_id
+	errors: returns -1 if the god_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk"
+			{"1": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}, "0": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}, "2": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}}
