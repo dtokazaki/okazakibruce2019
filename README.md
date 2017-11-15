@@ -1,4 +1,5 @@
 This documentation is for the use for the use of the REST api connected to piggybank app
+Errors being -1 or key error are almost always equivalent 
 
 Create God (NOTE: This ID is no longer available since the DELETE function was called)
 	type: PUT
@@ -221,9 +222,149 @@ Delete Child
 Get Child List
 	type: GET
 	function name: child/childall
-	paramaters: god_id
+	parameters: god_id
 	description: Returns all child accounts attributed to the god_id
 	errors: returns -1 if the god_id does not match up to an account
 	example:
 			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk"
 			{"1": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}, "0": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}, "2": {"achievements": [], "chore": [], "log": [], "wish": [], "points": 0, "permissions": {"pic": 1, "name": 1}}}
+
+Put Child Log
+	type: PUT
+	function name: child/childlog
+	parameters: god_id,child_id,message
+	description: Adds the given message to the child account with the current time. Returns 0 on successful operation.
+	errors: Returns -1 if the god_id or child_id does not natch up to an account. Errors out if message is an empty string
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childlog?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&message=Chore__Wash_The_Wishes_Completed"
+			0
+
+Delete Child Log (NOTE: Deletes the first message in the list that matches the given message)
+	type: Delete
+	function name:child/childlog
+	parameters: god_id,child_id,message
+	description: Searches the entire child log for the message with the same name as given, and then deletes it from the list. Returns 0 on successful operation.
+	errors: Returns -1 if the god_id or child_id does not match up to an account. Errors out if the message is an empty string
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childlog?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&message=Chore__Wash_The_Wishes_Completed"
+			0
+
+Get Child Log All
+	type: GET
+	function name: child/childlog/childlogall
+	parameters: god_id,child_id
+	description: Returns the entire child log
+	errors: returns -1 if the god_id or child_id does not match up to an account.
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childlog/childlogall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			[{"message": "Chore__Wash_The_Wishes_Completed", "time": "2017-11-15 01:16:41.253299"}, {"message": "Chore__Wash_The_Wishes_Completed", "time": "2017-11-15 01:16:43.311125"}, {"message": "Chore__Wash_The_Wishes_Completed", "time": "2017-11-15 01:16:44.891473"}]
+
+Delete Child Log All
+	type: DELETE
+	function name: child/childlog/childlogall
+	parameters: god_id,child_id
+	description: Deletes the entire child log list. Returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id does not match up to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childlog/childlogall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			0
+
+Put Child Name
+	type: PUT
+	function name: child/childname
+	parameters: god_id,child_id,child_name,permission
+	description: Adds/Changes the name of the given child. (permission = 0, read privileges, permission = 1+ write privileges) Returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id does not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childname?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&child_name=Zachary"
+			0
+
+Get Child Name
+	type: GET
+	function name: child/childname
+	parameters: god_id,child_id
+	description: Returns the child name attributed to the given child
+	errors: returns -1 if the god_id or the child_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childname?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			"Zachary"
+
+Get Child Permissions
+	type: GET
+	function name: child/childperm
+	parameters: god_id,child_id
+	description: Returns the permissions atributted to the given child
+	errors: returns -1 if the god_id or child_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childperm?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			{"pic": 1, "name": 1}
+
+Put Child Name Permission
+	type: PUT
+	function name: child/childperm/childnameperm
+	parameters: god_id,child_id,name_lvl,permission
+	description: Changes the name permissions of the child. name_lvl is the child permission level to change. Permission is the permission lvl of guardian/god. permission = 1+ write privileges, permission = 0 error. Returns 0 on successful operation
+	error: returns -1 if the god_id or child_id does not match up to an account, or if the permission lvl is 0 (less than 1)
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childperm/childnameperm?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&name_lvl=0"
+			0
+
+Put Child Pic Permission
+	type: PUT
+	function name: child/childperm/childpicperm
+	parameters: god_id,child_id,pic_lvl,permission
+	description: Changes the pic permissions of the child. pic_lvl is the child permission level to change. Permission is the permission lvl of guardian/god. permission = 1+ write priveleges, permission = 0, error. Returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id does not match up to an account, or if the permission lvl is 0 (less than 1)
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childperm/childpicperm?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&pic_lvl=0"
+			0
+
+Put Child Pic
+	type: PUT
+	function name: child/childpic
+	parameters: god_id,child_id,permission
+	description: Adds/Changes the pic of the given child. Permission is the permission lvl of guardian/god. (permission = 0, read privilges, permission = 1+ write privileges) Returns 0 on successful operation
+	errors: returns 1- if the god_id or child_id does not match up to an account, or if the permission lvl is 0 (less than 1)
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childpic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&child_pic=default.jpg"
+			0
+
+Get Child Pic
+	type: GET
+	function name: child/childpic
+	parameters: god_id,child_id
+	description: Returns the pic attributed to the given child
+	errors: returns -1 if the god_id or child_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/childpic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			"default.jpg"
+
+Add Points (NOTE: I can change this to return the current balance if that's more helpful)
+	type: PUT
+	function name: child/points
+	parameters: god_id,child_id,message,amount,permission
+	description: Adds the amount to the total amount of points that the child has. The message is optional, with no message being notated by "NULL". Permission is the permission lvl of guardian/god. permission = 1+ write priveleges, permission = 0, error. Returns 0 on successful operation.
+	errors: returns -1 if the god_id or child_id does not match up to an account, or if the permission lvl is 0 (less than 1)
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/points?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&amount=10000&message=Bonus_Prize"
+			0
+
+Delete Points (Note: I can change this to return the current balance if that's more helpful)
+	type: DELETE
+	function name: child/points
+	parameters: god_id,child_id.message,amount,permission
+	description:  Removes the amount to the total amount of points that the child has. The message is optional, with no message being notated by "NULL". Permission is the permission lvl of guardian/god. permission = 1+ write priveleges, permission = 0, error. Returns 0 on successful operation.
+	errors:	returns -1 if the god_id or child_id does not match up to an account, or if the permission lvl is 0 (less than 1)
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/points?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&permission=1&amount=5000&message=Punishment_-5000"
+			0
+
+Get Points
+	type: GET
+	function name: child/points
+	parameters: god_id,child_id
+	description: Returns the total amount of points that the child has.
+	errors: returns -1 if the god-id or child_id does not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/points?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			5000
