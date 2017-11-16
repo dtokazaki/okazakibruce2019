@@ -504,4 +504,4 @@ Put Chore Time_Reset
 			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choretime?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Clean_Dishes&time_reset=1000"
 			0
 
-/n
+\n
