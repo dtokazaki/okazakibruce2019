@@ -147,7 +147,9 @@ Delete Guardian
 			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
 			0
 
-NOTE: THESE NEXT 4 FUNCTIONS ARE OPTIONAL, AND CAN BE REMOVED IF YOU WANT THE GUARDIAN PIC AND NAME SAVED ON THEIR GOD ACCOUNT ONLY, AND NOT DIFFERENT COPIES ON DIFFERENT GOD ACCOUNTS. LET ME KNOW WHICH YOU CHOOSE SINCE I NEED TO DELETE THE PARAMETERS ON THE GUARDIAN SAVED ON THE GOD ACCOUNT IF YOU DONT WANT TO USE THESE FUNCTIONS
+NOTE: THESE NEXT 4 FUNCTIONS ONLY CHANGE THE NAME AND PIC ON THE GOD ACCOUNT. NOT THE GUARDIAN'S GOD ACCOUNT
+	EX: Guardian Name saved to Guardian's God Account: Darren Atkinson
+		Mason(child) refers to Guardian as Big Daddy Adi, so Guardian Name shown to the child is Big Daddy Adi
 
 Put Guardian Name (NOTE: This only changes the guardian name on the GOD account, not the guardian name on the guardian account. You can just not use this function, or use it to save nicknames on the GOD account. If you want to change the Guardian name on their own account and the name on the GOD account, you must call both functions)
 	type: PUT
@@ -368,3 +370,136 @@ Get Points
 	example:
 			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/child/points?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
 			5000
+
+Put Chore
+	type: PUT
+	function name: chore
+	parameters: god_id,child_id,chore_name,interval,day_reset,time_reset,reward,pic
+	description: Creates a chore for a child
+				 NOTE: These values are suggestions, and are completely up to you to add and interpret
+				 interval = how often the chore resets (1 - ...) 0 = No reset aka 1 time chore. 
+				 NOTE: Day reset must change constantly if the interval is not 1 week
+				 EX: interval = 1 (chore resets ever day)
+				 day_reset = 1 (Sunday)
+				 Once the chore is completed on Sunday, the day_reset changes to (day_reset + interval)%7 (Logic not programmed in server side)
+					
+				 day_reset = the day that the chore resets (1 = Sunday, ... , 7 = Saturday) 0 = no reset aka 1 time chore
+				 time_reset = the time that the chore resets (any time format you want, I can change to one variable time/date but i thought this would be easier to edit) -1 = no reset aka 1 time chore
+				 reward = the amount of points added when the chore is complete
+				 This function doesn't do any of the logic for adding points server side, so using these variables to add points should be done client side, unless you want me to add the logic serverside, would have to create a new function choreUpdate() or something similar for u to call to use it, but the logic can be done client side so i didnt think i needed it
+				 returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id does not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes&interval=1&day_reset=1&time_reset=1300&reward=100&pic=dishes.jpg"
+			0
+
+Get Chore (NOTE: I can change the 3rd parameter to be whatever you want, as long as its searchable)
+	type: GET
+	function name: chore
+	parameters: god_id, child_id,chore_name
+	description: returns the chore specified by the name
+	errors: returns -1 if the god_id or child_id does not match up to an account, or if the chore with the chore_name does not exist
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes"
+			{"day_reset": 1, "confirm": 0, "pic": "dishes.jpg", "time_reset": 1300, "interval": 1, "chore_name": "Wash_The_Dishes", "reward": 100}
+
+Delete Chore
+	type: DELETE
+	function name: chore
+	parameters: god_id,child_id,chore_name
+	description: deletes the chore specified by the name, returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id does not match up to an account, or if the chore with the chore_name does not exist
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes"
+			0
+
+Get Chore List
+	type: GET
+	function name: chore/choreall
+	parameters: god_id,child_id
+	description: returns the entire chore list
+	errors: returns -1 if the god_id or child_id do not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choreall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			[{"day_reset": 1, "confirm": 0, "pic": "dishes.jpg", "time_reset": 1300, "interval": 1, "chore_name": "Wash_The_Dishes", "reward": 100}, {"day_reset": 1, "confirm": 0, "pic": "dishes.jpg", "time_reset": 1300, "interval": 1, "chore_name": "Wash_The_Dishes", "reward": 100}, {"day_reset": 1, "confirm": 0, "pic": "dishes.jpg", "time_reset": 1300, "interval": 1, "chore_name": "Wash_The_Dishes", "reward": 100}]
+
+Delete Chore List
+	type: DELETE
+	function name: chore/choreall
+	parameters: god_id,child_id
+	description: Deletes the entire chore list, returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id do not match up to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choreall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			0
+
+Put Chore Confirm
+	type: PUT
+	function name: chore/choreconfirm
+	parameters: god_id,child_id,chore_name,confirm
+	description: Changes the confirm number to the given value (NOTE: Can also be used to unconfirm since the value does not matter. Not Confirmed = 0 and Confirmed = 1) returns 0 on successful operation
+		No permission requiered since whats the point of a guardian that can't confirm chores
+	errors: returns -1 if the god_id, or child_id do not match up to an account, or if the chore_name does not match any chores
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choreconfirm?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes&confirm=1"
+			0
+
+Put Chore Day (NOTE: No Permissions yet, but I can add it later when we work out all the details on what needs permissions and what doesn't)
+	type: PUT
+	function name: chore/choreday
+	parameters: god_id,child_id,chore_name,day_reset
+	description: Changes the day_reset to the given value. returns 0 on successful operation
+	errors: returns -1 if the god_id, or child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choreday?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes&day_reset=1"
+			0
+
+Put Chore Interval (NOTE: No Permissions yet, but I can add it later when we work out all the details on what needs permissions and what doesn't)
+	type: PUT
+	function name: chore/choreinterval
+	parameters: god_id,child_id,chore_name,interval
+	description: Changes the chore interval to the given value. returns 0 on successful operation
+	errors: returns -1 if the god_id or child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choreinterval?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes&interval=1"
+			0
+
+Put Chore Name (NOTE: No Permissions yet, but I can add it later when we work out all the details on what needs permissions and what doesn't)
+	type: PUT
+	function name: chore/chorename
+	parameters: god_id,child_id,chore_name,new_name
+	description: changes the chore name to the new name. returns 0 on successful operation 
+	errors: returns -1 if the god_id or child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/chorename?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Wash_The_Dishes&new_name=Clean_Dishes"
+			0
+
+Put Chore Pic (NOTE: No Permissions yet, but I can add it later when we work out all the details on what needs permissions and what doesn't)
+	type: PUT
+	function name: chore/chorepic
+	parameters: god_id,child_id,chore_name,pic
+	description: changes the chore pic to the new pic. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/chorepic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Clean_Dishes&pic=default2.jpg"
+			0
+
+Put Chore Reward
+	type: PUT
+	function name: chore/chorereward
+	parameters: god_id,child_id,chore_name,reward
+	description: changes the chore reward to the given value. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/chorereward?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Clean_Dishes&reward=1000"
+			0
+
+Put Chore Time_Reset
+	type: PUT
+	function name: chore/choretime
+	parameters: god_id,child_id,chore_name,time_reset
+	description: changes the chore time_reset to the given value. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account, or if the chore_name does not exist
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choretime?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Clean_Dishes&time_reset=1000"
+			0
