@@ -9,9 +9,10 @@
 - parameters: username, password
 - description: Hashes the password to use as the god_id, and saves the username as a global secondary index. Both of these can be searched in the database to retrieve the account. A god account is created with these parameters
 - example:
->curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?password=test&username=mason"
+
+		curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?password=test&username=mason"
 	
-	>"$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
+		"$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
 				
 **Get God (NOTE: This ID is no longer available since the DELETE function was called)**
 -type: GET
@@ -22,7 +23,7 @@
 -example:
 >curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?god_id=$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
 
-	>{"username": "mason", "guardian": {}, "accounts": {}, "child_count": 0, "god": {"log": []}, "avail_child": [], "god_id": "$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds", "children": {}}
+	{"username": "mason", "guardian": {}, "accounts": {}, "child_count": 0, "god": {"log": []}, "avail_child": [], "god_id": "$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds", "children": {}}
 
 **Delete God (NOTE: This ID is no longer available since the DELETE function was called)**
 -type: DELETE
