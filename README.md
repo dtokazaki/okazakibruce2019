@@ -177,9 +177,10 @@
 			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/guardian?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&guardian_id=$pbkdf2-sha256$500002$vrfWeq.11vpfq/XeGyNkrA$GTO9XIcTKYWt1ren2MTQ2Biku9Dd9bJDxHM.VPfKja4"
 			0
 
-**NOTE: THESE NEXT 4 FUNCTIONS ONLY CHANGE THE NAME AND PIC ON THE GOD ACCOUNT. NOT THE GUARDIAN'S GOD ACCOUNT
+**NOTE: THESE NEXT 4 FUNCTIONS ONLY CHANGE THE NAME AND PIC ON THE GOD ACCOUNT. NOT THE GUARDIAN'S GOD ACCOUNT**
+	
 	EX: Guardian Name saved to Guardian's God Account: Darren Atkinson
-		Mason(child) refers to Guardian as Big Daddy Adi, so Guardian Name shown to the child is Big Daddy Adi**
+		Mason(child) refers to Guardian as Big Daddy Adi, so Guardian Name shown to the child is Big Daddy Adi
 
 **Put Guardian Name (NOTE: This only changes the guardian name on the GOD account, not the guardian name on the guardian account. You can just not use this function, or use it to save nicknames on the GOD account. If you want to change the Guardian name on their own account and the name on the GOD account, you must call both functions)**
 
