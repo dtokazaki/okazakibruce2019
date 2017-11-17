@@ -1,34 +1,38 @@
-#This documentation is for the use for the use of the REST api connected to piggybank app
-###errors being -1 or key error are almost always equivalent 
+# This documentation is for the use for the use of the REST api connected to piggybank app
 
-Create God (NOTE: This ID is no longer available since the DELETE function was called)
-	type: PUT
-	function name: god
-	parameters: username, password
-	description: Hashes the password to use as the god_id, and saves the username as a global secondary index. Both of these can be searched in the database to retrieve the account. A god account is created with these parameters
-	example:
-			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?password=test&username=mason"
-			"$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
+##### NOTE: errors being -1 or key error are almost always equivalent 
+
+
+**Create God (NOTE: This ID is no longer available since the DELETE function was called)**
+- type: PUT
+- function name: god
+- parameters: username, password
+- description: Hashes the password to use as the god_id, and saves the username as a global secondary index. Both of these can be searched in the database to retrieve the account. A god account is created with these parameters
+- example:
+>curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?password=test&username=mason"
+	
+	>"$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
 				
-Get God (NOTE: This ID is no longer available since the DELETE function was called)
-	type: GET
-	function name: god
-	parameters: god_id
-	description: Uses a god_id to retrieve the god account attributed to that id
-	errors: Returns -1 if there is no account attributed to that id
-	example:
-			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?god_id=$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
-			{"username": "mason", "guardian": {}, "accounts": {}, "child_count": 0, "god": {"log": []}, "avail_child": [], "god_id": "$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds", "children": {}}
+**Get God (NOTE: This ID is no longer available since the DELETE function was called)**
+-type: GET
+-function name: god
+-parameters: god_id
+-description: Uses a god_id to retrieve the god account attributed to that id
+-errors: Returns -1 if there is no account attributed to that id
+-example:
+>curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?god_id=$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds"
 
-Delete God (NOTE: This ID is no longer available since the DELETE function was called)
-	type: DELETE
-	function name: god
-	parameters: god_id
-	description: Uses a god_id to delete the account attributed to that id. Returns 0 on successful operation
-	errors: Returns -1 if there is no account attributed to that id
-	example:
-			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?god_id=$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds" 
-			0
+	>{"username": "mason", "guardian": {}, "accounts": {}, "child_count": 0, "god": {"log": []}, "avail_child": [], "god_id": "$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds", "children": {}}
+
+**Delete God (NOTE: This ID is no longer available since the DELETE function was called)**
+-type: DELETE
+-function name: god
+-parameters: god_id
+-description: Uses a god_id to delete the account attributed to that id. Returns 0 on successful operation
+-errors: Returns -1 if there is no account attributed to that id
+-example:
+	>curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/god?god_id=$pbkdf2-sha256$500002$DYFw7h0jZMyZE2JszVlLqQ$VXJkjywoOpxLbDmeB62iXnML1NmHf92.Bprmj9wtjds" 
+	>0
 
 Get God ID
 	type: GET
