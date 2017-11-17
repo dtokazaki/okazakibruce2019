@@ -1,5 +1,5 @@
-This documentation is for the use for the use of the REST api connected to piggybank app
-Errors being -1 or key error are almost always equivalent 
+#This documentation is for the use for the use of the REST api connected to piggybank app
+###errors being -1 or key error are almost always equivalent 
 
 Create God (NOTE: This ID is no longer available since the DELETE function was called)
 	type: PUT
@@ -504,4 +504,93 @@ Put Chore Time_Reset
 			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/chore/choretime?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&chore_name=Clean_Dishes&time_reset=1000"
 			0
 
-\n
+Put Wish
+	type: PUT
+	function name: wish
+	parameters: god_id,child_id,wish_name,pic
+	description: Adds a wish to the list. Returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike&pic=bike.jpg"
+			0
+
+Get Wish (NOTE: None of the logic for using this information is implemented server side)
+	type: GET
+	function name: wish
+	parameters: god_id,child_id,wish_name
+	description: Returns the wish specified by the name
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike"
+			{"wish_name": "Bike", "cost": 0, "pic": "bike.jpg", "confirm": 0}
+
+Delete Wish
+	type: DELETE
+	function name: wish
+	parameters: god_id,child_id,wish_name,permission
+	description: deletes the wish specified by the name, returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike&permission=1"
+			0
+
+Get Wish List
+	type: GET
+	function name: wish/wishall
+	parameters: god_id,child_id
+	description: Returns the entire wishlist
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X GET "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"			
+			[{"wish_name": "Bike", "cost": 0, "pic": "bike.jpg", "confirm": 0}, {"wish_name": "Bike", "cost": 0, "pic": "bike.jpg", "confirm": 0}]
+
+Delete Wish List
+	type: GET
+	function name: wish/wishall
+	parameters: god_id,child_id
+	description: Deletes the entire wish list. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X DELETE "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishall?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0"
+			0
+
+Wish Confirm
+	type: PUT
+	function name: wish/wishconfirm
+	parameters: god_id,child_id,wish_name,confirm,permission
+	description: Changes the confirm number to the given value
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishconfirm?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike&confirm=1&permission=1"
+			0
+
+Wish Cost
+	type: PUT
+	function name: wish/wishcost
+	parameters: god_id,child_id,wish_name,cost,permission
+	description: Adds/Changes the cost for the given wish. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishcost?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike&cost=1000&permission=1"
+			0
+
+Wish Name
+	type: PUT
+	function name: wish/wishname
+	parameters: god_id,child_id,wish_name,new_name,permission
+	description: Changes the name for the given wish. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishname?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Bike&new_name=Speed_Racer&permission=1"
+			0
+
+Wish Pic
+	type: PUT
+	function name: wish/wishpic
+	parameters: god_id,child_id,wish_name,pic,permission
+	description: Changes the picture for the given wish. returns 0 on successful operation
+	errors: returns -1 if the god_id or the child_id do not match up to an account
+	example:
+			curl -X PUT "https://60y6l6qi3c.execute-api.us-west-1.amazonaws.com/alpha/wish/wishpic?god_id=$pbkdf2-sha256$500002$xdj739vb.z/HmJMSQuhdyw$EpJzuydLRzCUN5ei8BbvCJOfUk0AYYeI.jm7uIzHgUk&child_id=0&wish_name=Speed_Racer&pic=default4.jpg&permission=1"
+			0
+			
