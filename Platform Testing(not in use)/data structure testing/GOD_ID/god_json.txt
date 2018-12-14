@@ -1,0 +1,8 @@
+{
+	"god_name": "Paul Rogel"
+	"god_pic": "happy_face.jpg"
+
+	"god_settings": [
+
+	]
+}

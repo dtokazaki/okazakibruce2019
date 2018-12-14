@@ -1,0 +1,70 @@
+{
+	"child_name": "Paul Rogel"
+	"child_pic": "happy_face.jpg"
+	
+	"chore_list": [
+	 {
+		"chore": "Wash the Dishes",
+		"value": {
+			"points_given": 5, 
+			"chore_interval": 1, 						// <chore_interval> -> 1 = 1 day, 2 = 2 days, etc
+		 	"day_reset": 0, 						// <day_reset> -> 0 = daily, 1 = Sunday, 2 = Monday, etc
+			"time_reset": 0000, 						// <time_reset> -> 0000 = 12:00 am
+		 	"confirm": 0
+		 	"image": "dishes.jpg"
+		 }	
+	 },
+
+	 {
+		"chore": "Take Out the Trash",
+		"value": {
+			"points_given": 10, 
+		 	"chore_interval": 7, 
+		 	"day_reset": 6, 
+		 	"time_reset": 1300, 
+		 	"confirm": 1 
+		 	"image": ""
+		 }
+	 },		
+	]
+	"points": 100000
+																																				
+	"wishlist": [						
+	 { 
+		"wish": "bike", 
+		"value": {
+			"confirm": 1
+		 	"cost": 10000
+		 	"image": "bike.jpg"
+		}
+	 },
+	
+	 {
+		"wish": "toy car", 
+		"value": {
+			"confirm": 0
+		 	"cost": 0, 
+		 	"image": ""
+		}
+	 },
+	]
+
+	"achievements": [
+	 {
+		 "achieve_name": "First Chore",
+		 "value": { 
+		 	"complete": 1, 
+		 	"recurring_bool": 0, 
+		 	"day_reset": 0, 
+		 	"time_reset": 0000, 
+		 	"reward": 10, 
+		 	"progress": 100,  	
+		 	"image": ""
+		 }
+	 },
+	]
+
+	"settings": [
+	]
+																								
+																								

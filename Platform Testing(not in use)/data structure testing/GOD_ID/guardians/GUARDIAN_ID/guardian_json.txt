@@ -1,0 +1,22 @@
+guardian: {
+	"guardian_name": "Paul Rogel"
+	"guardian_pic": "happy_face.jpg"
+	"permission_level": [
+		{
+		 "CHILD_ID": {
+			"chore": "r",
+			"wish": "w"
+		 }				
+		},
+
+		{
+		 "key": "CHILD_ID", 
+		 "CHILD_ID": {
+			"chore":"r",
+			"wish": "w"
+		 }
+		},				
+	]
+	"settings": [
+	]
+}

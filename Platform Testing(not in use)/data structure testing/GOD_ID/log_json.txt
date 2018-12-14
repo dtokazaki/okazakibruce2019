@@ -1,0 +1,10 @@
+{
+	"log": {
+		"time": 0000 { 
+		 "message": "CHILD_NAME completed the FIRST_CHORE achievement"}
+		},
+		
+		"time": 0001 {
+		 "message": "testing"
+		},  
+}
