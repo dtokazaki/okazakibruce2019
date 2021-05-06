@@ -1,6 +1,5 @@
 # This documentation is for the use for the use of the REST api connected to piggybank app
 
-This repository contains live functions. Please do not abuse the API calls.
 
 ##### NOTE: errors being -1 or key error are almost always equivalent 
 
